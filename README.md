@@ -33,7 +33,12 @@ implementation 'cn.numeron:http:latest_version'
 
 [点击此处](https://github.com/xiazunyang/http/blob/master/OAUTH.md) 查看文档
 
+#### 网络连接失败重试拦截器
+* 可在网络连接超时、网络不稳定导致的错误时，重新发起连接请求。
+* 自定义重试次数。
+* 使用方法：在构建`OkHttpClient`实例时，添加`RetryInterceptor`实例即可。
+
 #### Http请求响应日志输出工具
 * 其实就是`HttpLoggingInterceptor`，但是解决了在传输非文本数据时，日志输出乱码的问题。
 * 解决了`HttpLoggingInterceptor`导致的上传、下载文件时无法触发回调的问题。
-* 使用方法参考`HttpLoggingInterceptor`
+* 使用方法：在构建`OkHttpClient`实例时，添加`TextLogInterceptor`实例即可。
