@@ -1,5 +1,21 @@
 ### http开源工具包
 
+#### 安装方法
+当前最新版本号：[![](https://jitpack.io/v/cn.numeron/http.svg)](https://jitpack.io/#cn.numeron/http)
+
+1.  在你的android工程的根目录下的build.gradle文件中的适当的位置添加以下代码：
+```groovy
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+2.  在你的android工程中对应的android模块的build.gradle文件中的适当位置添加以下代码：
+```groovy
+implementation 'cn.numeron:http:latest_version'
+```
+
 适用于`OkHttp`以及`Retrofit`的一些开源工具，包括文件的上传与下载的进度回调、`Oauth2`的`token`管理、请求与响应记录的日志输出等。
 
 #### 进度回调和断点续传
