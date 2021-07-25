@@ -8,11 +8,15 @@ import java.io.File
 import java.lang.reflect.Type
 
 /**
- * 当使用Retrofit下载文件时，使用此转换器后，可以
+ * 当使用Retrofit下载文件时，使用此转换器后，可以在Api接口中声明File类型的返回值。
  */
 class FileConverterFactory : Converter.Factory() {
 
-    override fun responseBodyConverter(type: Type, annotations: Array<Annotation>, retrofit: Retrofit): Converter<ResponseBody, *>? {
+    override fun responseBodyConverter(
+        type: Type,
+        annotations: Array<Annotation>,
+        retrofit: Retrofit
+    ): Converter<ResponseBody, *>? {
         if (type == File::class.java) {
             return FileConverter()
         }

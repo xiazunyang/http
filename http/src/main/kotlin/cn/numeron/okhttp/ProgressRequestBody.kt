@@ -5,9 +5,13 @@ import okhttp3.RequestBody
 import okio.*
 
 class ProgressRequestBody(
-    private val delegate: RequestBody,
-    private val callback: UpProgressCallback?,
+        private val delegate: RequestBody,
+        private val callback: UpProgressCallback,
 ) : RequestBody() {
+
+    private var writtenLength = 0L
+
+    private var contentLength = contentLength().toFloat()
 
     override fun isDuplex(): Boolean = delegate.isDuplex()
 
@@ -18,18 +22,21 @@ class ProgressRequestBody(
     override fun contentType(): MediaType? = delegate.contentType()
 
     override fun writeTo(sink: BufferedSink) {
-        val contentLength = contentLength()
         object : ForwardingSink(sink) {
-            var writtenLength = 0.0
             override fun write(source: Buffer, byteCount: Long) {
                 super.write(source, byteCount)
-                writtenLength += byteCount.coerceAtLeast(0)
-                callback?.update((writtenLength / contentLength).toFloat())
+                writtenLength += byteCount
+                callback.update(writtenLength / contentLength)
             }
         }.buffer().let {
             delegate.writeTo(it)
-            it.flush()
+            it.close()
         }
+    }
+
+    fun setExistLength(existLength: Long) {
+        writtenLength = existLength
+        contentLength += existLength
     }
 
 }

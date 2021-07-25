@@ -2,24 +2,12 @@ package cn.numeron
 
 import okhttp3.Headers
 import okhttp3.HttpUrl
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import java.net.URLDecoder
 
-/** 从请求实例中获取用[Tag]注解标记的参数 */
+/** 从请求实例中获取用[retrofit2.http.Tag]注解标记的参数 */
 internal inline fun <reified T> Request.getTag(): T? {
     return tag(T::class.java)
-}
-
-/** 从请求头中获取文件大小 */
-internal fun Headers.getContentLength(): Long {
-    return get("Content-Length")?.toLong() ?: -1L
-}
-
-/** 从请求头中获取文件类型 */
-internal fun Headers.getContentType(): MediaType? {
-    return get("Content-Type")?.toMediaTypeOrNull()
 }
 
 /** 从请求头中获取文件名 */

@@ -7,7 +7,7 @@ import okio.buffer
 import okio.source
 import java.io.File
 
-internal class FileResponseBody(val file: File, private val contentType: MediaType?) : ResponseBody() {
+class FileResponseBody(val file: File, private val contentType: MediaType?) : ResponseBody() {
 
     override fun contentLength(): Long = file.length()
 

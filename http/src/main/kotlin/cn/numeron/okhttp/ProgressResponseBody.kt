@@ -7,28 +7,40 @@ import okio.BufferedSource
 import okio.ForwardingSource
 import okio.buffer
 
-internal open class ProgressResponseBody(
-    private val delegate: ResponseBody,
-    private val callback: DlProgressCallback?
-) : ResponseBody() {
+class ProgressResponseBody(
+        private val delegate: ResponseBody,
+        private val callback: DlProgressCallback) : ResponseBody() {
+
+    /**
+     * 当前已处理的数据大小
+     */
+    private var readLength = 0L
+
+    private var contentLength = contentLength().toFloat()
+
+    private val source = object : ForwardingSource(delegate.source()) {
+        override fun read(sink: Buffer, byteCount: Long): Long {
+            val length = super.read(sink, byteCount)
+            if (contentLength > 0 && length > 0) {
+                readLength += length
+                callback.update(readLength / contentLength)
+            }
+            return length
+        }
+    }.buffer()
 
     override fun contentLength(): Long = delegate.contentLength()
 
     override fun contentType(): MediaType? = delegate.contentType()
 
-    override fun source(): BufferedSource {
-        return object : ForwardingSource(delegate.source()) {
-            val contentLength = contentLength()
-            var writtenLength = 0.0
-            override fun read(sink: Buffer, byteCount: Long): Long {
-                val readLength = super.read(sink, byteCount)
-                if (contentLength > 0 && callback != null) {
-                    writtenLength += readLength.coerceAtLeast(0)
-                    callback.update((writtenLength / contentLength).toFloat())
-                }
-                return readLength
-            }
-        }.buffer()
+    override fun source(): BufferedSource = source
+
+    /**
+     * 设置已存在的文件长度，以正确的获取下载进度
+     */
+    internal fun setExistLength(existLength: Long) {
+        readLength = existLength
+        contentLength += existLength
     }
 
 }

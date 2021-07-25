@@ -6,4 +6,3 @@ package cn.numeron.okhttp
 fun interface DlProgressCallback {
     fun update(progress: Float)
 }
-

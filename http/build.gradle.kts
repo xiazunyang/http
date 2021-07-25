@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("kotlin")
     id("com.github.dcendents.android-maven")
@@ -5,6 +7,12 @@ plugins {
 
 group = "com.github.xiazunyang"
 version = "1.0.0"
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
 
 dependencies {
     compileOnly("com.squareup.retrofit2:retrofit:2.9.0")
