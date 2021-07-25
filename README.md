@@ -1,5 +1,7 @@
 ### http开源工具包
 
+适用于`OkHttp`以及`Retrofit`的一些开源工具，包括文件的上传与下载的进度回调、`Oauth2`的`token`管理、请求与响应记录的日志输出等。
+
 #### 安装方法
 当前最新版本号：[![](https://jitpack.io/v/cn.numeron/http.svg)](https://jitpack.io/#cn.numeron/http)
 
@@ -15,8 +17,6 @@ allprojects {
 ```groovy
 implementation 'cn.numeron:http:latest_version'
 ```
-
-适用于`OkHttp`以及`Retrofit`的一些开源工具，包括文件的上传与下载的进度回调、`Oauth2`的`token`管理、请求与响应记录的日志输出等。
 
 #### 进度回调和断点续传
 * 通过`OkHttp`的拦截器实现的下载、上传进度监听功能
