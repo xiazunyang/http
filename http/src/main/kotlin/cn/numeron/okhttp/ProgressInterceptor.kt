@@ -84,7 +84,7 @@ class ProgressInterceptor : Interceptor {
                 parentFile.mkdirs()
             }
 
-            val existLength = file.length()
+            var existLength = file.length()
             //如果文件存在，并且与要下载的文件一致，则直接返回
             if (contentLength > 0 && existLength == contentLength) {
                 response.closeQuietly()
@@ -98,6 +98,8 @@ class ProgressInterceptor : Interceptor {
                 if (file.exists()) {
                     file.delete()
                 }
+                //因为已经已删除，所以要将此变量置0
+                existLength = 0
             }
             //如果文件已存在一部分，则重新发起请求，获取其余数据
             if (existLength > 0) {
@@ -116,7 +118,7 @@ class ProgressInterceptor : Interceptor {
             }
 
             //将请求体中的数据定入到文件中
-            responseBody.writeTo(file)
+            responseBody.writeTo(file, existLength)
 
             //写完文件数据后，构建一个新的回调并返回
             val fileResponseBody = FileResponseBody(file, contentType)
@@ -127,10 +129,12 @@ class ProgressInterceptor : Interceptor {
     /**
      * 使用RandomAccessFile将数据写入到文件
      */
-    private fun ResponseBody.writeTo(file: File) {
+    private fun ResponseBody.writeTo(file: File, existLength: Long) {
         //使用RandomAccessFile将数据写入到文件
         val outputFile = RandomAccessFile(file, "rws")
-        outputFile.seek(file.length())
+        if (existLength > 0) {
+            outputFile.seek(existLength)
+        }
         //执行写入操作
         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
         var readLength = source().read(buffer)
@@ -146,8 +150,8 @@ class ProgressInterceptor : Interceptor {
      * 根据[fileOrPath]的类型、响应信息以及请求信息中判断文件名及保存位置
      */
     private fun getStoredFile(fileOrPath: File, response: Response, request: Request): File {
-        return if (fileOrPath.exists() && fileOrPath.isFile || fileOrPath.extension.isNotEmpty()) {
-            //如果文件存在，并且是一个文件，或者文件名有扩展名，则将其作为保存数据的文件
+        return if (fileOrPath.isFile || fileOrPath.extension.isNotEmpty()) {
+            //如果是一个文件，或者文件名有扩展名，则将其作为保存数据的文件
             fileOrPath
         } else {
             //否则就是存放的目录，获取文件名并在该目录下创建文件
