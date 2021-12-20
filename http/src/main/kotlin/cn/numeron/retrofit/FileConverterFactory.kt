@@ -1,6 +1,6 @@
 package cn.numeron.retrofit
 
-import cn.numeron.okhttp.FileResponseBody
+import cn.numeron.okhttp.file.FileResponseBody
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit

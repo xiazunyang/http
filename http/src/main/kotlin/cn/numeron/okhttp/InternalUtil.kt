@@ -1,4 +1,4 @@
-package cn.numeron
+package cn.numeron.okhttp
 
 import okhttp3.Headers
 import okhttp3.HttpUrl
@@ -38,8 +38,9 @@ internal fun Headers.getFileName(): String? {
 /**
  * 从下载地址中获取文件名称
  * 优先用filename参数的值作为文件名
+ * 其次用name参数的值作为文件名
  * 拿不到则用下载地址的最后一位的pathSegment
  * */
 internal fun HttpUrl.getFileName(): String {
-    return queryParameter("filename") ?: pathSegments.last()
+    return queryParameter("filename") ?: queryParameter("name") ?: pathSegments.last()
 }

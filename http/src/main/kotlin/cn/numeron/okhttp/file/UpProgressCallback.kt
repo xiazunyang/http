@@ -1,4 +1,4 @@
-package cn.numeron.okhttp
+package cn.numeron.okhttp.file
 
 /**
  * 上传进度回调

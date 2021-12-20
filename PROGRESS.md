@@ -73,7 +73,7 @@ val file = File(TODO("要上传的文件路径"))
 //获取文件的MD5值
 val fileMd5 = file.getMd5()
 //将MD5值提交到服务器查询服务器上已存在的数据长度
-val existLength: Long = uploadApi.getExistLength()
+val existLength: Long = uploadApi.getExistLength(fileMd5)
 //声明上传进度监听器
 val upProgressCallback = UpProgressCallback {
     TODO("处理上传进度")

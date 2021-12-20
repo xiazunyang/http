@@ -1,4 +1,4 @@
-package cn.numeron.okhttp
+package cn.numeron.okhttp.oauth
 
 interface OAuthProvider {
 

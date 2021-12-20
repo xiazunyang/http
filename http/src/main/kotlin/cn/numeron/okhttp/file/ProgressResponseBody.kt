@@ -1,4 +1,4 @@
-package cn.numeron.okhttp
+package cn.numeron.okhttp.file
 
 import okhttp3.MediaType
 import okhttp3.ResponseBody
@@ -9,7 +9,8 @@ import okio.buffer
 
 class ProgressResponseBody(
         private val delegate: ResponseBody,
-        private val callback: DlProgressCallback) : ResponseBody() {
+        private val callback: DlProgressCallback
+) : ResponseBody() {
 
     /**
      * 当前已处理的数据大小

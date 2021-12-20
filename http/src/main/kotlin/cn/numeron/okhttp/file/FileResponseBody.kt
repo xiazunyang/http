@@ -1,4 +1,4 @@
-package cn.numeron.okhttp
+package cn.numeron.okhttp.file
 
 import okhttp3.MediaType
 import okhttp3.ResponseBody

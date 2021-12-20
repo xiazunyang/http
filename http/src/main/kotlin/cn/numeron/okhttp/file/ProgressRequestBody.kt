@@ -1,12 +1,12 @@
-package cn.numeron.okhttp
+package cn.numeron.okhttp.file
 
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.*
 
 class ProgressRequestBody(
-        private val delegate: RequestBody,
-        private val callback: UpProgressCallback,
+    private val delegate: RequestBody,
+    private val callback: UpProgressCallback,
 ) : RequestBody() {
 
     private var writtenLength = 0L
