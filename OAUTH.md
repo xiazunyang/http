@@ -40,7 +40,7 @@ val oauthClientInterceptor = OAuthClientInterceptor(AuthManagement)
 //3.添加到OkHttp中
 val okHttpClient = OkHttpClient.Builder()
     ...
-    .addInterceptor(OAuthClientInterceptor(AuthManagement))
+    .addInterceptor(oauthClientInterceptor)
     ...
     .build()
 ```
