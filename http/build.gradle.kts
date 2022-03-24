@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.github.xiazunyang"
-version = "1.0.2"
+version = "1.0.3"
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
@@ -16,6 +16,7 @@ tasks.withType<KotlinCompile> {
 
 dependencies {
     implementation("com.j256.simplemagic:simplemagic:1.17")
+    compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     compileOnly("com.squareup.retrofit2:retrofit:2.9.0")
     compileOnly("com.squareup.okhttp3:okhttp:4.9.1")
 }

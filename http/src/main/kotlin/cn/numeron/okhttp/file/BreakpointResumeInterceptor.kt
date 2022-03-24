@@ -18,8 +18,6 @@ class BreakpointResumeInterceptor : Interceptor {
         var request = chain.request()
         //取出文件参数
         val fileOrDir = request.getTag<File>()
-        //取出下载进度回调参数
-        val dlProgressCallback = request.getTag<DlProgressCallback>()
         //获取原请求
         var response = chain.proceed(request)
         if (fileOrDir == null) {
@@ -56,23 +54,19 @@ class BreakpointResumeInterceptor : Interceptor {
         }
         //如果文件已存在一部分，则重新发起请求，获取其余数据
         if (existLength > 0) {
+            //获取剩余数据的请求体
             request = request.newBuilder()
                 .removeHeader("range")
                 .addHeader("range", "bytes=${existLength}-")
                 .build()
-            //获取剩余数据的请求体
             response.closeQuietly()
-            val rangeResponse = chain.proceed(request)
-            if(rangeResponse.code == 200) {
-                //如果服务器返回了剩余的部分数据，则关闭之前的响应
-                responseBody = response.body!!
-            } else {
-                //否则只能继续用原来的响应来写入
+            response = chain.proceed(request)
+            responseBody = response.body!!
+            if (responseBody.contentLength() == contentLength) {
+                // 如果剩余数据的大小与原大小相同，则说明服务器不支持Range参数，则忽略掉已存在的部分
                 responseBody.source().skip(existLength)
             }
-            if (dlProgressCallback != null) {
-                //构建有进度回调的请求体
-                responseBody = ProgressResponseBody(responseBody, dlProgressCallback)
+            if (responseBody is ProgressResponseBody) {
                 //把已有的部分，算作已下载的进度，以处理正确的进度
                 responseBody.setExistLength(existLength)
             }
