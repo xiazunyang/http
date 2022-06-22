@@ -3,36 +3,42 @@ package cn.numeron.okhttp
 import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.Request
+import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 
-/** 从请求实例中获取用[retrofit2.http.Tag]注解标记的参数 */
-internal inline fun <reified T> Request.getTag(): T? {
-    return tag(T::class.java)
+/** 从请求头中获取文件名 */
+fun Headers.getFileName(): String? {
+    val contentDisposition = get("Content-Disposition") ?: return null
+    val properties = contentDisposition
+        .splitToList(';')
+        .associate {
+            it.splitToList('=').toPair()
+        }
+    val encodedFilename = properties["filename*"]
+    if (!encodedFilename.isNullOrEmpty()) {
+        var (coding, fileName) = encodedFilename.splitToList('\'').toPair()
+        if (fileName == null) {
+            fileName = coding
+            coding = "utf-8"
+        }
+        try {
+            return URLDecoder.decode(fileName, coding)
+        } catch (_: UnsupportedEncodingException) {
+        }
+    }
+    val filename = properties["filename"]
+    if (!filename.isNullOrEmpty()) {
+        return filename
+    }
+    return null
 }
 
-/** 从请求头中获取文件名 */
-internal fun Headers.getFileName(): String? {
-    return get("Content-Disposition")
-        ?.split(';')
-        ?.let { list ->
-            list.find {
-                it.contains("filename*")
-            } ?: list.find {
-                it.contains("filename")
-            }
-        }
-        ?.split('=')
-        ?.component2()
-        ?.removeSurrounding("\"")
-        ?.let {
-            if (it.contains('\'')) {
-                //如果有'字符，则取出编码格式与字符串，解码后返回
-                val split = it.split('\'').filter(String::isNotBlank)
-                URLDecoder.decode(split.component2(), split.component1())
-            } else {
-                it  //否则直接返回字符串
-            }
-        }
+internal fun <T> List<T>.toPair(): Pair<T, T?> {
+    return get(0) to getOrNull(1)
+}
+
+internal fun String.splitToList(char: Char): List<String> {
+    return split(char).map(String::trim).filter(String::isNotEmpty)
 }
 
 /**

@@ -1,6 +1,5 @@
 package cn.numeron.okhttp.file
 
-import cn.numeron.okhttp.getTag
 import okhttp3.*
 import java.io.File
 
@@ -39,8 +38,8 @@ class ProgressInterceptor : Interceptor {
         //获取原始请求
         var request = chain.request()
         //取出进度回调参数
-        val upProgressCallback = request.getTag<UpProgressCallback>()
-        val dlProgressCallback = request.getTag<DlProgressCallback>()
+        val upProgressCallback = request.tag(UpProgressCallback::class.java)
+        val dlProgressCallback = request.tag(DlProgressCallback::class.java)
         if (upProgressCallback != null && request.body != null) {
             //如果有上传进度回调，并且有请求体，则构建新的请求体实例，以监听进度回调
             val progressRequestBody = ProgressRequestBody(request.body!!, upProgressCallback)

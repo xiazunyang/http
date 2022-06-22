@@ -1,7 +1,6 @@
 package cn.numeron.okhttp.file
 
 import cn.numeron.okhttp.getFileName
-import cn.numeron.okhttp.getTag
 import com.j256.simplemagic.ContentType
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -17,7 +16,7 @@ class BreakpointResumeInterceptor : Interceptor {
         //获取原始请求
         var request = chain.request()
         //取出文件参数
-        val fileOrDir = request.getTag<File>()
+        val fileOrDir = request.tag(File::class.java)
         //获取原请求
         var response = chain.proceed(request)
         if (fileOrDir == null) {
