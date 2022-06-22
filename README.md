@@ -49,6 +49,7 @@ implementation 'cn.numeron:http:latest_version'
 * 示例：
     ```kotlin
     /** 此接口下所有的方法均通过指定的url地址访问，优先级低于方法上的注解 */
+    @Url("http://192.168.1.111:8081/")
     interface LoginApi {
         
         /** 指定此方法在调用时，访问服务器的8080端口 */
