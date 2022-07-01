@@ -13,13 +13,20 @@ class RespecifyUrlInterceptor : Interceptor {
         val invocation = request.tag(Invocation::class.java)
         if (invocation != null) {
             val httpUrl = getNewHttpUrl(invocation, request.url)
-            request = request.newBuilder().url(httpUrl).build()
+            if (httpUrl != null) {
+                request = request.newBuilder().url(httpUrl).build()
+            }
         }
         return chain.proceed(request)
     }
 
-    private fun getNewHttpUrl(invocation: Invocation, originalHttpUrl: HttpUrl): HttpUrl {
+    private fun getNewHttpUrl(invocation: Invocation, originalHttpUrl: HttpUrl): HttpUrl? {
         val method = invocation.method()
+        val isSpecUrl = method.parameterAnnotations.flatten().contains(retrofit2.http.Url())
+        if (isSpecUrl) {
+            // 如果API方法通过`retrofit2.http.Url`注解指定了访问地址，则不处理
+            return null
+        }
         var urlAnnotation = method.getAnnotation(Url::class.java)
         var portAnnotation = method.getAnnotation(Port::class.java)
         if (urlAnnotation == null && portAnnotation == null) {
@@ -27,19 +34,20 @@ class RespecifyUrlInterceptor : Interceptor {
             urlAnnotation = klass.getAnnotation(Url::class.java)
             portAnnotation = klass.getAnnotation(Port::class.java)
         }
-        return when {
-            urlAnnotation != null -> {
-                val url = urlAnnotation.value.toHttpUrl()
-                originalHttpUrl.newBuilder().host(url.host).port(url.port).build()
-            }
-            portAnnotation != null -> {
-                val port = portAnnotation.value
-                originalHttpUrl.newBuilder().port(port).build()
-            }
-            else -> {
-                originalHttpUrl
-            }
+        if (urlAnnotation == null && portAnnotation == null) {
+            // 方法和类上均没有注解，则不处理
+            return null
         }
+        val newBuilder = originalHttpUrl.newBuilder()
+        if (urlAnnotation != null) {
+            val httpUrl = urlAnnotation.value.toHttpUrl()
+            newBuilder.host(httpUrl.host).port(httpUrl.port)
+        }
+        if (portAnnotation != null) {
+            // Port和Url可同时存在，但是Url中的端口将不生效。
+            newBuilder.port(portAnnotation.value)
+        }
+        return newBuilder.build()
     }
 
 }
