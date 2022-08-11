@@ -43,9 +43,9 @@ implementation 'cn.numeron:http:latest_version'
 * 解决了`HttpLoggingInterceptor`导致的上传、下载文件时无法触发回调的问题。
 * 使用方法：在构建`OkHttpClient`实例时，添加`TextLogInterceptor`实例即可。
 
-### Retrofit 动态Url方案
+### Retrofit 动态Url、Port方案
 * 使用`Port`或`Url`注解为Api指定访问端口或地址。
-* 在初始化`OkHttpClient`时，添加`RespecifyUrlInterceptor`拦截器，并放在靠前的位置。
+* 在初始化`OkHttpClient`时，添加`DynamicUrlInterceptor`拦截器，并放在靠前的位置。
 * 示例：
     ```kotlin
     /** 此接口下所有的方法均通过指定的url地址访问，优先级低于方法上的注解 */
@@ -61,6 +61,21 @@ implementation 'cn.numeron:http:latest_version'
         @Url("http://192.168.1.111:8081/")
         @POST("api/user/login")
         suspend fun logout(@Body payload: LoginPayload): LogoutResponse
+        
+    }
+    ```
+
+### Retrofit 动态定制请求超时方案
+* 使用`RequestTimeout`注解为Api指定请求超时时间，可标记在方法和接口上。
+* 在初始化`OkHttpClient`时，添加`DynamicTimeoutInterceptor`拦截器。
+* 示例：
+    ```kotlin
+    interface LoginApi {
+        
+        /** 此请求在访问API时，读取、写入、连接的超时时间均为8秒 */
+        @RequestTimeout(value = 8, unit = TimeUnit.SECONDS)
+        @POST("api/user/login")
+        suspend fun login(@Body payload: LoginPayload): LoginResponse
         
     }
     ```

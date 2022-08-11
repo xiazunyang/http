@@ -1,4 +1,4 @@
-package cn.numeron.retrofit
+package cn.numeron.retrofit.url
 
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -6,7 +6,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import retrofit2.Invocation
 
-class RespecifyUrlInterceptor : Interceptor {
+class DynamicUrlInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
@@ -41,7 +41,7 @@ class RespecifyUrlInterceptor : Interceptor {
         val newBuilder = originalHttpUrl.newBuilder()
         if (urlAnnotation != null) {
             val httpUrl = urlAnnotation.value.toHttpUrl()
-            newBuilder.host(httpUrl.host).port(httpUrl.port)
+            newBuilder.host(httpUrl.host).port(httpUrl.port).scheme(httpUrl.scheme)
         }
         if (portAnnotation != null) {
             // Port和Url可同时存在，但是Url中的端口将不生效。
