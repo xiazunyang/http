@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.github.xiazunyang"
-version = "1.0.3"
+version = "1.0.6"
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
