@@ -1,4 +1,4 @@
-package cn.numeron.retrofit.timout
+package cn.numeron.retrofit
 
 import java.util.concurrent.TimeUnit
 

@@ -1,4 +1,4 @@
-package cn.numeron.retrofit.url
+package cn.numeron.retrofit
 
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl

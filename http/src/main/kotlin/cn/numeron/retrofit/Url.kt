@@ -1,4 +1,4 @@
-package cn.numeron.retrofit.url
+package cn.numeron.retrofit
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
