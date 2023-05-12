@@ -11,25 +11,16 @@
 
 ```kotlin
 //1.使用object单例实现OauthProvider接口
-object AuthManagement : OauthProvider {
+object AuthManagement : OauthProvider
 
-    private const val KEY_ACCESS_TOKEN = "Authorization"
+    /** 登录成功后，把权限Token保存到此处 */
+    override val accessToken: String? = null
 
-    private val headersMap = mutableMapOf()
-
-    override val headers: Map<String, String>
-        get() = headersMap
+    /** 其它要添加的请求头均添加到此处 */
+    override val headers = mutableMapOf()
 
     override fun refreshToken(): String? {
         TODO("获取新的TOKEN，并作为返回值返回")
-    }
-
-    fun setAccessToken(accessToken: String?) {
-        if (accessToken.isNullOrEmpty()) {
-            headersMap.remove(KEY_ACCESS_TOKEN)
-        } else {
-            headersMap[KEY_ACCESS_TOKEN] = "Bearer $accessToken"
-        }
     }
 
 }
