@@ -21,7 +21,10 @@ class FileConverter : Converter<ResponseBody, File> {
         return if (responseBody is FileResponseBody) {
             responseBody.file
         } else try {
-            getFile(DELEGATE_FIELD.get(responseBody) as ResponseBody)
+            val declaredField = responseBody::class.java.getDeclaredField("delegate")
+            declaredField.isAccessible = true
+            val delegate = declaredField.get(responseBody) as ResponseBody
+            getFile(delegate)
         } catch (throwable: Throwable) {
             throw RuntimeException("响应体中没有记录文件信息！或者没有使用Tag标记File类型的参数！", throwable)
         }
@@ -40,14 +43,6 @@ class FileConverter : Converter<ResponseBody, File> {
             return null
         }
 
-    }
-
-    companion object {
-        private val DELEGATE_FIELD by lazy {
-            ResponseBody::class.java.getDeclaredField("delegate").apply {
-                isAccessible = true
-            }
-        }
     }
 
 }
