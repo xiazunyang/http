@@ -18,13 +18,19 @@ allprojects {
 implementation 'cn.numeron:http:latest_version'
 ```
 
-#### 进度回调和断点续传
+#### 进度回调
 * 通过`OkHttp`的拦截器实现的下载、上传进度监听功能
-* 同时支持断点续传
-* 免去IO的操作过程
 * 支持`OkHttp`和`Retrofit`
 
 [点击此处](https://github.com/xiazunyang/http/blob/master/PROGRESS.md) 查看文档
+
+#### 文件上传/下载
+* 通过`OkHttp`的拦截器实现的下载、上传进度监听功能
+* 同时支持断点续传
+* 无需IO操作过程
+* 支持`OkHttp`和`Retrofit`
+
+[点击此处](https://github.com/xiazunyang/http/blob/master/FILE.md) 查看文档
 
 #### Oauth授权管理
 * 适用于`Oauth2`授权的APP端token管理工具

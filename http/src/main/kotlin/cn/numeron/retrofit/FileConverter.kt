@@ -21,9 +21,9 @@ class FileConverter : Converter<ResponseBody, File> {
         return if (responseBody is FileResponseBody) {
             responseBody.file
         } else try {
-            val declaredField = responseBody::class.java.getDeclaredField("delegate")
-            declaredField.isAccessible = true
-            val delegate = declaredField.get(responseBody) as ResponseBody
+            val field = responseBody.javaClass.getDeclaredField("delegate")
+            field.isAccessible = true
+            val delegate = field.get(responseBody) as ResponseBody
             getFile(delegate)
         } catch (throwable: Throwable) {
             throw RuntimeException("响应体中没有记录文件信息！或者没有使用Tag标记File类型的参数！", throwable)

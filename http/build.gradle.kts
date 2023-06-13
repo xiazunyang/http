@@ -5,8 +5,8 @@ plugins {
     id("com.github.dcendents.android-maven")
 }
 
-group = "com.github.xiazunyang"
-version = "1.0.7"
+group = "cn.numeron"
+version = "1.0.8"
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
