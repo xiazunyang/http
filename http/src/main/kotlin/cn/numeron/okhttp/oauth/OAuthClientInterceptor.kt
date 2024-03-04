@@ -11,9 +11,11 @@ class OAuthClientInterceptor(private val provider: OAuthProvider) : Interceptor 
         val headers = request.headers
         val requestBuilder = request.newBuilder()
         // 添加授权
-        if (!provider.accessToken.isNullOrEmpty()) {
-            requestBuilder.removeHeader(AUTHORIZATION)
-            requestBuilder.addHeader(AUTHORIZATION, "Bearer ${provider.accessToken}")
+        var accessToken = provider.accessToken
+        if (!accessToken.isNullOrEmpty()) {
+            requestBuilder
+                .removeHeader(AUTHORIZATION)
+                .addHeader(AUTHORIZATION, "Bearer $accessToken")
         }
         // 添加额外的请求头，不会覆盖已存在的
         val headersNames = headers.names()
@@ -28,7 +30,7 @@ class OAuthClientInterceptor(private val provider: OAuthProvider) : Interceptor 
 
         if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
             //如果返回了401，则尝试通过provider获取新的token
-            val accessToken = provider.refreshToken()
+            accessToken = provider.refreshToken()
             if (!accessToken.isNullOrEmpty()) {
                 // 将更新的token保存起来
                 provider.accessToken = accessToken

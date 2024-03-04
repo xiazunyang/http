@@ -26,11 +26,15 @@ class TextLogInterceptor @JvmOverloads constructor(
     @Volatile
     private var headersToRedact = emptySet<String>()
 
-    @set:JvmName("level")
     @Volatile
-    var level = LogLevel.NONE
+    @set:JvmName("requestLevel")
+    var requestLevel = LogLevel.NONE
 
-    interface Logger {
+    @Volatile
+    @set:JvmName("responseLevel")
+    var responseLevel = LogLevel.NONE
+
+    fun interface Logger {
         fun log(message: String)
 
         companion object {
@@ -44,22 +48,26 @@ class TextLogInterceptor @JvmOverloads constructor(
         }
     }
 
-    fun setLevel(level: LogLevel): TextLogInterceptor = apply {
-        this.level = level
+    fun setRequestLevel(level: LogLevel): TextLogInterceptor = apply {
+        this.requestLevel = level
+    }
+
+    fun setResponseLevel(level: LogLevel): TextLogInterceptor = apply {
+        this.responseLevel = level
     }
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        val level = this.level
+        val requestLevel = this.requestLevel
+        val responseLevel = this.responseLevel
 
         val request = chain.request()
-        if (level == LogLevel.NONE) {
+        if (requestLevel == LogLevel.NONE && responseLevel == LogLevel.NONE) {
             return chain.proceed(request)
         }
 
-
-        val logBody = level == LogLevel.BODY
-        val logHeaders = logBody || level == LogLevel.HEADERS
+        val logRequestBody = requestLevel == LogLevel.BODY
+        val logRequestHeaders = logRequestBody || requestLevel == LogLevel.HEADERS
 
         val requestBody = request.body
 
@@ -68,12 +76,12 @@ class TextLogInterceptor @JvmOverloads constructor(
         val connection = chain.connection()
         var requestStartMessage =
             ("--> ${request.method} ${request.url}${if (connection != null) " " + connection.protocol() else ""}")
-        if (!logHeaders && requestBody != null) {
+        if (!logRequestHeaders && requestBody != null) {
             requestStartMessage += " (${requestBody.contentLength()}-byte body)"
         }
         logger.log(requestStartMessage)
 
-        if (logHeaders) {
+        if (logRequestHeaders) {
             val headers = request.headers
 
             if (requestBody != null) {
@@ -95,7 +103,7 @@ class TextLogInterceptor @JvmOverloads constructor(
                 logHeader(headers, i)
             }
 
-            if (!logBody || requestBody == null) {
+            if (!logRequestBody || requestBody == null) {
                 logger.log("--> END ${request.method}")
             } else if (bodyHasUnknownEncoding(request.headers)) {
                 logger.log("--> END ${request.method} (encoded body omitted)")
@@ -131,24 +139,27 @@ class TextLogInterceptor @JvmOverloads constructor(
             throw e
         }
 
+        val logResponseBody = responseLevel == LogLevel.BODY
+        val logResponseHeaders = logResponseBody || responseLevel == LogLevel.HEADERS
+
         val tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs)
 
         val responseBody = response.body!!
         val contentLength = responseBody.contentLength()
         val bodySize = if (contentLength != -1L) "$contentLength-byte" else "unknown-length"
         logger.log(
-            "<-- ${response.code}${if (response.message.isEmpty()) "" else ' ' + response.message} ${response.request.url} (${tookMs}ms${if (!logHeaders) ", $bodySize body" else ""})"
+            "<-- ${response.code}${if (response.message.isEmpty()) "" else ' ' + response.message} ${response.request.url} (${tookMs}ms${if (!logRequestHeaders) ", $bodySize body" else ""})"
         )
 
         val isTextResponseBody = responseBody.contentType().isTextContent()
 
-        if (logHeaders) {
+        if (logResponseHeaders) {
             val headers = response.headers
             for (i in 0 until headers.size) {
                 logHeader(headers, i)
             }
 
-            if (!logBody || !response.promisesBody()) {
+            if (!logResponseBody || !response.promisesBody()) {
                 logger.log("<-- END HTTP")
             } else if (bodyHasUnknownEncoding(response.headers)) {
                 logger.log("<-- END HTTP (encoded body omitted)")
@@ -207,7 +218,7 @@ class TextLogInterceptor @JvmOverloads constructor(
     private companion object {
 
         fun MediaType?.isTextContent(): Boolean {
-            return this?.type == "text" || this?.subtype == "json"
+            return this?.type == "text" || this?.subtype == "json" || this?.subtype == "x-www-form-urlencoded"
         }
 
         fun Buffer.isProbablyUtf8(): Boolean {
